@@ -599,6 +599,14 @@ defmodule TodoWeb.CoreComponents do
     )
   end
 
+  def toggle_line_through(js \\ %JS{}, selector, is_remove) do
+    if is_remove do
+      JS.remove_class(js, "line-through", to: selector)
+    else
+      JS.add_class(js, "line-through", to: selector)
+    end
+  end
+
   def show_modal(js \\ %JS{}, id) when is_binary(id) do
     js
     |> JS.show(to: "##{id}")

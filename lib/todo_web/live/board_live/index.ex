@@ -43,9 +43,12 @@ defmodule TodoWeb.BoardLive.Index do
 
   @impl true
   def handle_event("delete", %{"id" => id}, socket) do
-    board = Tasks.get_board!(id)
-    {:ok, _} = Tasks.delete_board(board)
+    with %Board{} = board <- Tasks.get_board_for_user(id, socket.assigns.current_user.id) do
+      {:ok, _} = Tasks.delete_board(board)
 
-    {:noreply, stream_delete(socket, :task_boards, board)}
+      {:noreply, stream_delete(socket, :task_boards, board)}
+    else
+      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+    end
   end
 end

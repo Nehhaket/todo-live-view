@@ -7,26 +7,13 @@ defmodule Todo.Tasks do
   alias Todo.Repo
 
   alias Todo.Tasks.Board
-
-  @doc """
-  Returns the list of task_boards.
-
-  ## Examples
-
-      iex> list_task_boards()
-      [%Board{}, ...]
-
-  """
-  def list_task_boards_for_user(user_id) do
-    Board
-    |> where([b], b.user_id == ^user_id)
-    |> Repo.all()
-  end
+  alias Todo.Tasks.Todo, as: BoardTodo
 
   @doc """
   Gets a single board.
 
   Raises `Ecto.NoResultsError` if the Board does not exist.
+  Only for use in non-user-facing code.
 
   ## Examples
 
@@ -39,6 +26,34 @@ defmodule Todo.Tasks do
   """
   def get_board!(id), do: Repo.get!(Board, id)
 
+  @doc """
+  Returns the list of task_boards for given user.
+
+  ## Examples
+
+      iex> list_task_boards_for_user(user_id)
+      [%Board{}, ...]
+
+  """
+  def list_task_boards_for_user(user_id) do
+    Board
+    |> where([b], b.user_id == ^user_id)
+    |> order_by(:inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a single board for user.
+
+  ## Examples
+
+      iex> get_board_for_user(board_owner_id)
+      %Board{}
+
+      iex> get_board_for_user(not_owner_id)
+      nil
+
+  """
   def get_board_for_user(board_id, user_id) do
     Board
     |> where([b], b.id == ^board_id and b.user_id == ^user_id)
@@ -108,5 +123,108 @@ defmodule Todo.Tasks do
   """
   def change_board(%Board{} = board, attrs \\ %{}) do
     Board.changeset(board, attrs)
+  end
+
+  @doc """
+  Returns the list of todos in a given task board.
+
+  ## Examples
+
+      iex> list_board_todos_for_user(board_id, user_id)
+      [%Todo{}, ...]
+
+  """
+  def list_board_todos_for_user(board_id, user_id) do
+    BoardTodo
+    |> join(:left, [t], b in assoc(t, :board))
+    |> where([t, b], b.user_id == ^user_id and t.board_id == ^board_id)
+    |> order_by(:inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
+  Gets a single board todo for user.
+
+  ## Examples
+
+      iex> get_board_todo_for_user(board_owner_id)
+      %Todo{}
+
+      iex> get_board_todo_for_user(not_owner_id)
+      nil
+
+  """
+  def get_board_todo_for_user(todo_id, user_id) do
+    BoardTodo
+    |> join(:left, [t], b in assoc(t, :board))
+    |> where([t, b], t.id == ^todo_id and b.user_id == ^user_id)
+    |> Repo.one()
+  end
+
+  @doc """
+  Creates a todo.
+
+  ## Examples
+
+      iex> create_board_todo(%{field: value})
+      {:ok, %Todo{}}
+
+      iex> create_board_todo(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_board_todo(attrs \\ %{}) do
+    %BoardTodo{}
+    |> BoardTodo.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a todo.
+
+  ## Examples
+
+      iex> update_board(board, %{field: new_value})
+      {:ok, %Board{}}
+
+      iex> update_board(board, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_board_todo(%BoardTodo{} = todo, attrs) do
+    todo
+    |> BoardTodo.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a board.
+
+  ## Examples
+
+      iex> delete_board(board)
+      {:ok, %Board{}}
+
+      iex> delete_board(board)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_board_todo(%BoardTodo{} = todo) do
+    Repo.delete(todo)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking board changes.
+
+  ## Examples
+
+      iex> change_board(board)
+      %Ecto.Changeset{data: %Board{}}
+
+  """
+  def change_board_todo(%BoardTodo{} = todo, attrs \\ %{}) do
+    IO.inspect(todo, label: :todo)
+    IO.inspect(attrs, label: :attrs)
+    BoardTodo.changeset(todo, attrs)
   end
 end

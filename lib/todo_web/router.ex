@@ -20,7 +20,7 @@ defmodule TodoWeb.Router do
   scope "/", TodoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive.Index, :index
 
     live_session :task_boards,
       on_mount: [
@@ -33,6 +33,16 @@ defmodule TodoWeb.Router do
 
       live "/task_boards/:id", BoardLive.Show, :show
       live "/task_boards/:id/show/edit", BoardLive.Show, :edit
+    end
+
+    live_session :board_todos,
+      on_mount: [
+        {TodoWeb.UserAuth, :ensure_authenticated},
+        {TodoWeb.UserAuth, :mount_current_user}
+      ] do
+      live "/board_todos/:board_id", TodoLive.Index, :index
+      live "/board_todos/:board_id/new", TodoLive.Index, :new
+      live "/board_todos/:todo_id/edit", TodoLive.Index, :edit
     end
   end
 

@@ -1,0 +1,49 @@
+<.header>
+  <%= @board_title %>
+  <:actions>
+    <.link patch={~p"/task_boards/"}>
+      <.button><%= "< Back to boards" %></.button>
+    </.link>
+    <.link patch={~p"/board_todos/#{@board_id}/new"}>
+      <.button>+ New todo</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="board_todos"
+  rows={@streams.board_todos}
+  row_click={fn {id, todo} -> JS.push("toggle", value: %{todo_id: todo.id}) |> toggle_line_through("##{id} p", todo.completed) end}
+>
+  <:col :let={{_id, todo}}>
+    <p class={if todo.completed, do: "line-through"}><%= todo.title %></p>
+  </:col>
+  <:action :let={{id, todo}}>
+    <div class="sr-only">
+      <.link phx-click={JS.push("toggle", value: %{todo_id: todo.id}) |> toggle_line_through("##{id} p", todo.completed)}>
+        Toggle
+      </.link>
+    </div>
+    <.link patch={~p"/board_todos/#{todo}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, todo}}>
+    <.link
+      phx-click={JS.push("delete", value: %{todo_id: todo.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="todo-modal" show on_cancel={JS.patch(~p"/board_todos/#{@board_id}")}>
+  <.live_component
+    module={TodoWeb.TodoLive.FormComponent}
+    id={@todo.id || :new}
+    title={@page_title}
+    action={@live_action}
+    todo={@todo}
+    current_user={@current_user}
+    patch={~p"/board_todos/#{@board_id}"}
+  />
+</.modal>
