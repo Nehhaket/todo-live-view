@@ -21,6 +21,19 @@ defmodule TodoWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live_session :task_boards,
+      on_mount: [
+        {TodoWeb.UserAuth, :ensure_authenticated},
+        {TodoWeb.UserAuth, :mount_current_user}
+      ] do
+      live "/task_boards", BoardLive.Index, :index
+      live "/task_boards/new", BoardLive.Index, :new
+      live "/task_boards/:id/edit", BoardLive.Index, :edit
+
+      live "/task_boards/:id", BoardLive.Show, :show
+      live "/task_boards/:id/show/edit", BoardLive.Show, :edit
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -1,0 +1,42 @@
+<.header>
+  Listing Task boards
+  <:actions>
+    <.link patch={~p"/task_boards/new"}>
+      <.button>New Board</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.table
+  id="task_boards"
+  rows={@streams.task_boards}
+  row_click={fn {_id, board} -> JS.navigate(~p"/task_boards/#{board}") end}
+>
+  <:col :let={{_id, board}} label="Title"><%= board.title %></:col>
+  <:action :let={{_id, board}}>
+    <div class="sr-only">
+      <.link navigate={~p"/task_boards/#{board}"}>Show</.link>
+    </div>
+    <.link patch={~p"/task_boards/#{board}/edit"}>Edit</.link>
+  </:action>
+  <:action :let={{id, board}}>
+    <.link
+      phx-click={JS.push("delete", value: %{id: board.id}) |> hide("##{id}")}
+      data-confirm="Are you sure?"
+    >
+      Delete
+    </.link>
+  </:action>
+</.table>
+
+<.modal :if={@live_action in [:new, :edit]} id="board-modal" show on_cancel={JS.patch(~p"/task_boards")}>
+  <.live_component
+    module={TodoWeb.BoardLive.FormComponent}
+    id={@board.id || :new}
+    title={@page_title}
+    action={@live_action}
+    board={@board}
+    current_user={@current_user}
+    patch={~p"/task_boards"}
+  />
+</.modal>
