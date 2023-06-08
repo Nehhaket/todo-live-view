@@ -12,14 +12,13 @@ defmodule TodoWeb.TodoLive.Index do
         Tasks.subscribe_to_todos_changes(board.id)
       end
 
+      todos_list = Tasks.list_board_todos_for_user(board.id, socket.assigns.current_user.id)
+
       {:ok,
        socket
        |> assign(:board_id, board.id)
        |> assign(:board_title, board.title)
-       |> stream(
-         :board_todos,
-         Tasks.list_board_todos_for_user(board.id, socket.assigns.current_user.id)
-       )}
+       |> stream(:board_todos, todos_list)}
     else
       _ -> {:ok, push_navigate(socket, to: ~p"/task_boards", replace: true)}
     end
@@ -74,7 +73,7 @@ defmodule TodoWeb.TodoLive.Index do
   def handle_event("toggle", %{"todo_id" => todo_id}, socket) do
     with %BoardTodo{} = todo <-
            Tasks.get_board_todo_for_user(todo_id, socket.assigns.current_user.id) do
-      {:ok, _} = Tasks.update_board_todo(todo, %{completed: not todo.completed})
+      {:ok, todo} = Tasks.update_board_todo(todo, %{completed: not todo.completed})
       Tasks.broadcast_todo_change(todo)
 
       {:noreply, socket}
