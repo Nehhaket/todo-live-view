@@ -6,7 +6,13 @@ defmodule TodoWeb.BoardLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :task_boards, Tasks.list_task_boards_for_user(socket.assigns.current_user.id))}
+    user_id = socket.assigns.current_user.id
+
+    if connected?(socket) do
+      Tasks.subscribe_to_boards_changes(user_id)
+    end
+
+    {:ok, stream(socket, :task_boards, Tasks.list_task_boards_for_user(user_id))}
   end
 
   @impl true
@@ -37,18 +43,24 @@ defmodule TodoWeb.BoardLive.Index do
   end
 
   @impl true
-  def handle_info({TodoWeb.BoardLive.FormComponent, {:saved, board}}, socket) do
+  def handle_event("delete", %{"id" => id}, socket) do
+    with %Board{} = board <- Tasks.get_board_for_user(id, socket.assigns.current_user.id) do
+      {:ok, _} = Tasks.delete_board(board)
+      Tasks.broadcast_board_delete(board)
+
+      {:noreply, socket}
+    else
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
+    end
+  end
+
+  @impl true
+  def handle_info({:board_change, board}, socket) do
     {:noreply, stream_insert(socket, :task_boards, board)}
   end
 
   @impl true
-  def handle_event("delete", %{"id" => id}, socket) do
-    with %Board{} = board <- Tasks.get_board_for_user(id, socket.assigns.current_user.id) do
-      {:ok, _} = Tasks.delete_board(board)
-
-      {:noreply, stream_delete(socket, :task_boards, board)}
-    else
-      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
-    end
+  def handle_info({:board_delete, board}, socket) do
+    {:noreply, stream_delete(socket, :task_boards, board)}
   end
 end

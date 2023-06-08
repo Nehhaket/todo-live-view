@@ -4,7 +4,7 @@ defmodule Todo.Tasks.Todo do
 
   schema "board_todos" do
     field :title, :string
-    field :completed, :boolean
+    field :completed, :boolean, default: true
     belongs_to :board, Todo.Tasks.Board
 
     timestamps()

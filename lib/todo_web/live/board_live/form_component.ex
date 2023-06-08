@@ -59,7 +59,7 @@ defmodule TodoWeb.BoardLive.FormComponent do
     |> Tasks.update_board(board_params)
     |> case do
       {:ok, board} ->
-        notify_parent({:saved, board})
+        Tasks.broadcast_board_change(board)
 
         {:noreply,
          socket
@@ -77,7 +77,7 @@ defmodule TodoWeb.BoardLive.FormComponent do
     |> Tasks.create_board()
     |> case do
       {:ok, board} ->
-        notify_parent({:saved, board})
+        Tasks.broadcast_board_change(board)
 
         {:noreply,
          socket
@@ -92,6 +92,4 @@ defmodule TodoWeb.BoardLive.FormComponent do
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :form, to_form(changeset))
   end
-
-  defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
 end

@@ -223,8 +223,30 @@ defmodule Todo.Tasks do
 
   """
   def change_board_todo(%BoardTodo{} = todo, attrs \\ %{}) do
-    IO.inspect(todo, label: :todo)
-    IO.inspect(attrs, label: :attrs)
     BoardTodo.changeset(todo, attrs)
+  end
+
+  def subscribe_to_boards_changes(user_id) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "boards:#{user_id}")
+  end
+
+  def broadcast_board_change(%Board{} = board) do
+    Phoenix.PubSub.broadcast!(Todo.PubSub, "boards:#{board.user_id}", {:board_change, board})
+  end
+
+  def broadcast_board_delete(%Board{} = board) do
+    Phoenix.PubSub.broadcast!(Todo.PubSub, "boards:#{board.user_id}", {:board_delete, board})
+  end
+
+  def subscribe_to_todos_changes(board_id) do
+    Phoenix.PubSub.subscribe(Todo.PubSub, "todos:#{board_id}")
+  end
+
+  def broadcast_todo_change(%BoardTodo{} = todo) do
+    Phoenix.PubSub.broadcast!(Todo.PubSub, "todos:#{todo.board_id}", {:todo_change, todo})
+  end
+
+  def broadcast_todo_delete(%BoardTodo{} = todo) do
+    Phoenix.PubSub.broadcast!(Todo.PubSub, "todos:#{todo.board_id}", {:todo_delete, todo})
   end
 end

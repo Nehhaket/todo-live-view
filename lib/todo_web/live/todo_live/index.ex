@@ -8,6 +8,10 @@ defmodule TodoWeb.TodoLive.Index do
   @impl true
   def mount(%{"board_id" => board_id}, _session, socket) do
     with %Board{} = board <- Tasks.get_board_for_user(board_id, socket.assigns.current_user.id) do
+      if connected?(socket) do
+        Tasks.subscribe_to_todos_changes(board.id)
+      end
+
       {:ok,
        socket
        |> assign(:board_id, board.id)
@@ -54,30 +58,38 @@ defmodule TodoWeb.TodoLive.Index do
   end
 
   @impl true
-  def handle_info({TodoWeb.TodoLive.FormComponent, {:saved, todo}}, socket) do
-    {:noreply, stream_insert(socket, :board_todos, todo)}
-  end
-
-  @impl true
   def handle_event("delete", %{"todo_id" => todo_id}, socket) do
     with %BoardTodo{} = todo <-
            Tasks.get_board_todo_for_user(todo_id, socket.assigns.current_user.id) do
       {:ok, _} = Tasks.delete_board_todo(todo)
+      Tasks.broadcast_todo_delete(todo)
 
-      {:noreply, stream_delete(socket, :board_todos, todo)}
+      {:noreply, socket}
     else
       _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 
+  @impl true
   def handle_event("toggle", %{"todo_id" => todo_id}, socket) do
     with %BoardTodo{} = todo <-
            Tasks.get_board_todo_for_user(todo_id, socket.assigns.current_user.id) do
       {:ok, _} = Tasks.update_board_todo(todo, %{completed: not todo.completed})
+      Tasks.broadcast_todo_change(todo)
 
-      {:noreply, stream_insert(socket, :board_todos, todo)}
+      {:noreply, socket}
     else
       _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
+  end
+
+  @impl true
+  def handle_info({:todo_change, todo}, socket) do
+    {:noreply, stream_insert(socket, :board_todos, todo)}
+  end
+
+  @impl true
+  def handle_info({:todo_delete, todo}, socket) do
+    {:noreply, stream_delete(socket, :board_todos, todo)}
   end
 end
