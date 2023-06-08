@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserForgotPasswordLive do
+defmodule TodoWeb.UserLive.ForgotPassword do
   use TodoWeb, :live_view
 
   alias Todo.Accounts

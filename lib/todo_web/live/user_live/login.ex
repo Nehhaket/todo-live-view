@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserLoginLive do
+defmodule TodoWeb.UserLive.Login do
   use TodoWeb, :live_view
 
   def render(assigns) do

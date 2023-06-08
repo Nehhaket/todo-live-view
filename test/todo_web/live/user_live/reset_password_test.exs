@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserResetPasswordLiveTest do
+defmodule TodoWeb.UserLive.ResetPasswordTest do
   use TodoWeb.ConnCase
 
   import Phoenix.LiveViewTest

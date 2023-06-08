@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserResetPasswordLive do
+defmodule TodoWeb.UserLive.ResetPassword do
   use TodoWeb, :live_view
 
   alias Todo.Accounts

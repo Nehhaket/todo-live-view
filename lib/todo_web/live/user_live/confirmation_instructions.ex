@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserConfirmationInstructionsLive do
+defmodule TodoWeb.UserLive.ConfirmationInstructions do
   use TodoWeb, :live_view
 
   alias Todo.Accounts

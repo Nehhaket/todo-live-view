@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserSettingsLive do
+defmodule TodoWeb.UserLive.Settings do
   use TodoWeb, :live_view
 
   alias Todo.Accounts

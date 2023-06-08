@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserRegistrationLiveTest do
+defmodule TodoWeb.UserLive.RegistrationTest do
   use TodoWeb.ConnCase
 
   import Phoenix.LiveViewTest

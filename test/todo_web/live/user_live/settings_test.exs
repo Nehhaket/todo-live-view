@@ -1,4 +1,4 @@
-defmodule TodoWeb.UserSettingsLiveTest do
+defmodule TodoWeb.UserLive.SettingsTest do
   use TodoWeb.ConnCase
 
   alias Todo.Accounts
