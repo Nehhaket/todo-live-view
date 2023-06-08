@@ -20,7 +20,7 @@ defmodule TodoWeb.BoardLive.Index do
       |> assign(:page_title, "Edit Board")
       |> assign(:board, board)
     else
-      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 
@@ -48,7 +48,7 @@ defmodule TodoWeb.BoardLive.Index do
 
       {:noreply, stream_delete(socket, :task_boards, board)}
     else
-      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 end

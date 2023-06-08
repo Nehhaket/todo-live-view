@@ -17,7 +17,7 @@ defmodule TodoWeb.TodoLive.Index do
          Tasks.list_board_todos_for_user(board.id, socket.assigns.current_user.id)
        )}
     else
-      _ -> {:ok, push_patch(socket, to: ~p"/task_boards", replace: true)}
+      _ -> {:ok, push_navigate(socket, to: ~p"/task_boards", replace: true)}
     end
   end
 
@@ -33,7 +33,7 @@ defmodule TodoWeb.TodoLive.Index do
       |> assign(:page_title, "Edit todo")
       |> assign(:todo, todo)
     else
-      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 
@@ -43,7 +43,7 @@ defmodule TodoWeb.TodoLive.Index do
       |> assign(:page_title, "New todo")
       |> assign(:todo, %BoardTodo{completed: false, board_id: board_id})
     else
-      _ -> push_patch(socket, to: ~p"/board_todos/#{board_id}", replace: true)
+      _ -> push_navigate(socket, to: ~p"/board_todos/#{board_id}", replace: true)
     end
   end
 
@@ -66,7 +66,7 @@ defmodule TodoWeb.TodoLive.Index do
 
       {:noreply, stream_delete(socket, :board_todos, todo)}
     else
-      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 
@@ -77,7 +77,7 @@ defmodule TodoWeb.TodoLive.Index do
 
       {:noreply, stream_insert(socket, :board_todos, todo)}
     else
-      _ -> push_patch(socket, to: ~p"/task_boards", replace: true)
+      _ -> push_navigate(socket, to: ~p"/task_boards", replace: true)
     end
   end
 end
